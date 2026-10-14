@@ -270,7 +270,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
   const now = () => Date.now() + offset;
   const DEFAULT_START = new Date(window.RACE_START || "").getTime() || null;
   let S = {start: DEFAULT_START, goal: 24, returns: {}, ended: null};
-  let known = !!DEFAULT_START, stored = false, admin = false, connected = true;
+  let known = !!DEFAULT_START, stored = false, admin = false, connected = true, everConnected = false;
   let ref = null, auth = null, TS = null;
 
   const pad = n => String(n).padStart(2,"0");
@@ -295,7 +295,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
     TS = firebase.database.ServerValue.TIMESTAMP;
     ref = db.ref("race");
     db.ref(".info/serverTimeOffset").on("value", s => { offset = s.val() || 0; });
-    db.ref(".info/connected").on("value", s => { connected = !!s.val(); applyRole(); });
+    db.ref(".info/connected").on("value", s => { connected = !!s.val(); if (connected) everConnected = true; applyRole(); });
     ref.on("value", snap => {
       const d = snap.val() || {}, before = S.start;
       stored = !!d.start;
@@ -334,6 +334,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
     chip.hidden = false;
     chip.className = "chip";
     if (!LIVE){ chip.classList.add("local"); chip.textContent = "Nur dieses Gerät"; }
+    else if (!connected && !everConnected){ chip.classList.add("local"); chip.textContent = "Verbinde …"; }
     else if (!connected){ chip.classList.add("off"); chip.textContent = admin ? "Offline · wird nachgeholt" : "Verbindung weg"; }
     else chip.textContent = admin ? "Live · du trägst ein" : "Live";
   }
