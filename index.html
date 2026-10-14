@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -156,47 +156,47 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
       <span class="eyebrow">Backyard Ultra</span>
       <h1>Werner</h1>
     </div>
-    <span class="rule">6,706 km pro Runde · Start zu jeder vollen Stunde</span>
+    <span class="rule">6.706 km per loop · start on every hour</span>
     <span class="chip" id="modeChip" hidden>Live</span>
     <span class="spacer"></span>
     <span class="clock" id="clock">--:--:--</span>
     <div class="tools">
-      <button class="btn" id="btnSound" aria-pressed="false">Ton aus</button>
-      <button class="btn" id="btnFull">Vollbild</button>
-      <button class="btn" id="btnSettings" hidden>Einstellungen</button>
+      <button class="btn" id="btnSound" aria-pressed="false">Sound off</button>
+      <button class="btn" id="btnFull">Fullscreen</button>
+      <button class="btn" id="btnSettings" hidden>Settings</button>
     </div>
   </header>
 
   <section class="pre" id="pre" hidden>
-    <p class="pre-kicker" id="preWhen">Startschuss</p>
+    <p class="pre-kicker" id="preWhen">Start</p>
     <h2 class="pre-title">Time till the epic <em>Werner</em> event</h2>
-    <div class="pre-clock" role="timer" aria-label="Zeit bis zum Start">
-      <div class="unit"><span class="num" id="pD">0</span><span class="cap">Tage</span></div>
-      <div class="unit"><span class="num" id="pH">00</span><span class="cap">Stunden</span></div>
-      <div class="unit"><span class="num" id="pM">00</span><span class="cap">Minuten</span></div>
-      <div class="unit sec"><span class="num" id="pS">00</span><span class="cap">Sekunden</span></div>
+    <div class="pre-clock" role="timer" aria-label="Time until the start">
+      <div class="unit"><span class="num" id="pD">0</span><span class="cap">Days</span></div>
+      <div class="unit"><span class="num" id="pH">00</span><span class="cap">Hours</span></div>
+      <div class="unit"><span class="num" id="pM">00</span><span class="cap">Minutes</span></div>
+      <div class="unit sec"><span class="num" id="pS">00</span><span class="cap">Seconds</span></div>
     </div>
     <p class="pre-slogan">One loop every hour. No finish line. Werner decides.</p>
     <ul class="pre-facts">
-      <li><strong>6,706 km</strong> pro Runde</li>
-      <li><strong>Jede volle Stunde</strong> ein neuer Start</li>    </ul>
+      <li><strong>6.706 km</strong> per loop</li>
+      <li><strong>Every hour</strong> a new start</li>    </ul>
   </section>
 
   <main class="board" id="board">
     <section class="cell side">
-      <span class="label">Runde</span>
+      <span class="label">Loop</span>
       <span class="big" id="lapNo">–</span>
-      <span class="sub" id="kmDone"><strong>0,0 km</strong> gelaufen</span>
+      <span class="sub" id="kmDone"><strong>0.0 km</strong> run</span>
     </section>
     <section class="cell timer" id="timerBox">
       <span class="label" id="timerLabel">Start in</span>
       <span class="huge" id="countdown">--:--</span>
       <div class="hourbar"><i id="hourBar"></i></div>
-      <span class="phase" id="phase" data-p="pre">Vor dem Start</span>
+      <span class="phase" id="phase" data-p="pre">Before the start</span>
       <span class="sub" id="phaseDetail">&nbsp;</span>
     </section>
     <section class="cell goalcell">
-      <span class="label">Nächstes Ziel</span>
+      <span class="label">Next milestone</span>
       <span class="mid" id="msName">–</span>
       <span class="sub" id="msDetail">&nbsp;</span>
     </section>
@@ -204,18 +204,18 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
 
   <section class="lower" id="lower">
     <dl class="stats">
-      <div><dt>Gesamtzeit</dt><dd id="stTotal">–</dd></div>
-      <div><dt>Ø Runde</dt><dd id="stAvg">–</dd></div>
-      <div><dt>Schnellste</dt><dd id="stBest">–</dd></div>
-      <div><dt>Letzte</dt><dd id="stLast">–</dd></div>
+      <div><dt>Total time</dt><dd id="stTotal">–</dd></div>
+      <div><dt>Avg loop</dt><dd id="stAvg">–</dd></div>
+      <div><dt>Fastest</dt><dd id="stBest">–</dd></div>
+      <div><dt>Last</dt><dd id="stLast">–</dd></div>
     </dl>
     <div class="chart">
-      <span class="label">Rundenzeiten in Minuten</span>
-      <svg id="chart" viewBox="0 0 600 150" role="img" aria-label="Rundenzeiten"></svg>
+      <span class="label">Loop times in minutes</span>
+      <svg id="chart" viewBox="0 0 600 150" role="img" aria-label="Loop times"></svg>
     </div>
     <div class="actions" id="actions">
-      <button class="primary" id="btnBack"><span id="btnBackText">Werner ist zurück</span><small>oder Leertaste drücken</small></button>
-      <button class="btn" id="btnUndo">Letzte Eingabe rückgängig</button>
+      <button class="primary" id="btnBack"><span id="btnBackText">Werner is back</span><small>or press the space bar</small></button>
+      <button class="btn" id="btnUndo">Undo last entry</button>
     </div>
   </section>
 </div>
@@ -223,33 +223,33 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
 <div class="overlay" id="settings" hidden>
   <div class="sheet">
     <form id="loginForm" hidden>
-      <h2>Anmelden</h2>
-      <p class="hint">Nur wer angemeldet ist, kann Runden eintragen. Zuschauer brauchen das nicht.</p>
-      <div class="field"><label for="loginEmail">E-Mail</label><input type="email" id="loginEmail" autocomplete="username" required></div>
-      <div class="field"><label for="loginPass">Passwort</label><input type="password" id="loginPass" autocomplete="current-password" required></div>
+      <h2>Sign in</h2>
+      <p class="hint">Only signed-in organisers can record loops. Spectators don't need to sign in.</p>
+      <div class="field"><label for="loginEmail">Email</label><input type="email" id="loginEmail" autocomplete="username" required></div>
+      <div class="field"><label for="loginPass">Password</label><input type="password" id="loginPass" autocomplete="current-password" required></div>
       <p class="err" id="loginErr" hidden></p>
       <div class="row">
-        <button type="submit" class="btn save">Anmelden</button>
-        <button type="button" class="btn" data-close>Schließen</button>
+        <button type="submit" class="btn save">Sign in</button>
+        <button type="button" class="btn" data-close>Close</button>
       </div>
     </form>
 
     <form id="raceForm" hidden>
-      <h2>Einstellungen</h2>
+      <h2>Settings</h2>
       <div class="row">
-        <div class="field"><label for="setDate">Renntag</label><input type="date" id="setDate" required></div>
-        <div class="field"><label for="setTime">Erster Start</label><input type="time" id="setTime" step="60" required></div>
+        <div class="field"><label for="setDate">Race day</label><input type="date" id="setDate" required></div>
+        <div class="field"><label for="setTime">First start</label><input type="time" id="setTime" step="60" required></div>
       </div>
-      <div class="field"><label for="setGoal">Werners Ziel (Runden)</label><input type="number" id="setGoal" min="1" max="200" required></div>
+      <div class="field"><label for="setGoal">Werner's goal (loops)</label><input type="number" id="setGoal" min="1" max="200" required></div>
       <p class="hint" id="raceHint"></p>
       <div class="row">
-        <button type="submit" class="btn save">Speichern</button>
-        <button type="button" class="btn" data-close>Schließen</button>
+        <button type="submit" class="btn save">Save</button>
+        <button type="button" class="btn" data-close>Close</button>
       </div>
       <div class="row">
-        <button type="button" class="btn danger" id="btnEnd">Rennen beenden</button>
-        <button type="button" class="btn danger" id="btnReset">Alles zurücksetzen</button>
-        <button type="button" class="btn" id="btnLogout" hidden>Abmelden</button>
+        <button type="button" class="btn danger" id="btnEnd">End race</button>
+        <button type="button" class="btn danger" id="btnReset">Reset everything</button>
+        <button type="button" class="btn" id="btnLogout" hidden>Sign out</button>
       </div>
     </form>
   </div>
@@ -261,7 +261,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
 (function(){
   const H = 3600000, LAP_KM = 6.706, KEY = "werner-backyard-v3";
   const $ = id => document.getElementById(id);
-  const MILESTONES = [[7,"Marathon"],[8,"50 km"],[15,"100 km"],[24,"100 Meilen"],[30,"200 km"],[36,"150 Meilen"],[45,"300 km"]];
+  const MILESTONES = [[7,"Marathon"],[8,"50 km"],[15,"100 km"],[24,"100 miles"],[30,"200 km"],[36,"150 miles"],[45,"300 km"]];
   const cfg = window.FIREBASE_CONFIG || {};
   const LIVE = !!(cfg.apiKey && cfg.databaseURL && window.firebase);
   const WANTS_ADMIN = /admin/i.test(location.hash);
@@ -277,14 +277,14 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
   const mmss = ms => { const s = Math.max(0, Math.round(ms/1000)); return pad(Math.floor(s/60)) + ":" + pad(s%60); };
   const cd = sec => { sec = Math.max(0,sec); const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec%60; return h ? h+":"+pad(m)+":"+pad(s) : pad(m)+":"+pad(s); };
   const hms = ms => { const s = Math.max(0,Math.floor(ms/1000)); return Math.floor(s/3600)+":"+pad(Math.floor(s%3600/60))+":"+pad(s%60); };
-  const km = laps => (laps*LAP_KM).toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1}) + " km";
+  const km = laps => (laps*LAP_KM).toLocaleString("en-GB",{minimumFractionDigits:1,maximumFractionDigits:1}) + " km";
   const hhmm = t => { const d = new Date(t); return pad(d.getHours())+":"+pad(d.getMinutes()); };
   function nextFullHour(){ const d = new Date(now()); d.setMinutes(0,0,0); d.setHours(d.getHours()+1); return d.getTime(); }
   const canWrite = () => LIVE ? admin : true;
 
   let toastTimer = null;
   function toast(msg){ $("toast").textContent = msg; $("toast").hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(()=>{ $("toast").hidden = true; }, 6000); }
-  const failed = e => toast("Speichern hat nicht geklappt: " + ((e && e.code === "PERMISSION_DENIED") ? "keine Berechtigung, bitte neu anmelden." : (e && e.message) || "unbekannter Fehler"));
+  const failed = e => toast("Couldn't save: " + ((e && e.code === "PERMISSION_DENIED") ? "no permission, please sign in again." : (e && e.message) || "unknown error"));
 
   /* ---------- Speicher: Firebase oder nur dieses Gerät ---------- */
   function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -303,7 +303,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
       known = !!S.start;
       if (S.start !== before) resetAlarms();
       chartKey = ""; render();
-    }, () => toast("Die Live-Daten lassen sich nicht laden. Stimmen die Regeln der Datenbank?"));
+    }, () => toast("The live data can't be loaded. Check the database rules."));
     auth.onAuthStateChanged(u => { admin = !!u; applyRole(); render(); });
   } else {
     try{ const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.start) S = s; }catch(e){}
@@ -329,14 +329,14 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
     $("actions").hidden = !w;
     $("lower").classList.toggle("viewer", !w);
     $("btnSettings").hidden = !(w || (LIVE && WANTS_ADMIN));
-    $("btnSettings").textContent = (LIVE && !admin) ? "Anmelden" : "Einstellungen";
+    $("btnSettings").textContent = (LIVE && !admin) ? "Sign in" : "Settings";
     const chip = $("modeChip");
     chip.hidden = false;
     chip.className = "chip";
-    if (!LIVE){ chip.classList.add("local"); chip.textContent = "Nur dieses Gerät"; }
-    else if (!connected && !everConnected){ chip.classList.add("local"); chip.textContent = "Verbinde …"; }
-    else if (!connected){ chip.classList.add("off"); chip.textContent = admin ? "Offline · wird nachgeholt" : "Verbindung weg"; }
-    else chip.textContent = admin ? "Live · du trägst ein" : "Live";
+    if (!LIVE){ chip.classList.add("local"); chip.textContent = "This device only"; }
+    else if (!connected && !everConnected){ chip.classList.add("local"); chip.textContent = "Connecting …"; }
+    else if (!connected){ chip.classList.add("off"); chip.textContent = admin ? "Offline · will sync later" : "Connection lost"; }
+    else chip.textContent = admin ? "Live · you're recording" : "Live";
   }
 
   /* ---------- Rennstand ---------- */
@@ -378,7 +378,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
   $("btnSound").addEventListener("click", () => {
     try{ if (!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); ctx.resume(); }catch(e){}
     soundOn = !soundOn;
-    $("btnSound").textContent = soundOn ? "Ton an" : "Ton aus";
+    $("btnSound").textContent = soundOn ? "Sound on" : "Sound off";
     $("btnSound").setAttribute("aria-pressed", soundOn);
     if (soundOn) tone(1900,0.2,0,0.3,"triangle");
     keepAwake();
@@ -421,7 +421,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
       $("setTime").value = pad(d.getHours())+":"+pad(d.getMinutes());
       $("setGoal").value = S.goal;
       $("btnLogout").hidden = !LIVE;
-      $("raceHint").textContent = LIVE ? "Änderungen sehen alle Zuschauer sofort. Eine neue Startzeit löscht die bisherigen Rundenzeiten." : "Ohne Firebase-Werte wird nur in diesem Browser gespeichert.";
+      $("raceHint").textContent = LIVE ? "All spectators see changes instantly. A new start time clears the recorded loop times." : "Without Firebase settings, data is saved in this browser only.";
     }
     $("settings").hidden = false;
     (needLogin ? $("loginEmail") : $("setTime")).focus();
@@ -438,9 +438,9 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
       .then(() => { $("loginPass").value = ""; openSettings(); })
       .catch(err => {
         const c = (err && err.code) || "";
-        $("loginErr").textContent = /invalid|wrong-password|user-not-found/.test(c) ? "E-Mail oder Passwort stimmt nicht." :
-          /too-many/.test(c) ? "Zu viele Versuche. Bitte kurz warten." :
-          /network/.test(c) ? "Keine Internetverbindung." : "Anmelden hat nicht geklappt (" + c + ").";
+        $("loginErr").textContent = /invalid|wrong-password|user-not-found/.test(c) ? "Wrong email or password." :
+          /too-many/.test(c) ? "Too many attempts. Please wait a moment." :
+          /network/.test(c) ? "No internet connection." : "Sign-in failed (" + c + ").";
         $("loginErr").hidden = false;
       });
   });
@@ -455,15 +455,15 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
   });
 
   const armed = {};
-  function disarm(){ ["btnEnd","btnReset"].forEach(id => { armed[id] = false; $(id).classList.remove("armed"); }); $("btnEnd").textContent = "Rennen beenden"; $("btnReset").textContent = "Alles zurücksetzen"; }
+  function disarm(){ ["btnEnd","btnReset"].forEach(id => { armed[id] = false; $(id).classList.remove("armed"); }); $("btnEnd").textContent = "End race"; $("btnReset").textContent = "Reset everything"; }
   function twoStep(id, label, action){
     $(id).addEventListener("click", () => {
       if (!armed[id]){ disarm(); armed[id] = true; $(id).classList.add("armed"); $(id).textContent = label; setTimeout(() => { if (armed[id]) disarm(); }, 4000); return; }
       disarm(); action(); closeSettings();
     });
   }
-  twoStep("btnEnd", "Wirklich beenden? Nochmal tippen", () => { if (!known) return; const st = status(now()); W.end(st.lap ? st.lap - 1 + (st.returned ? 1 : 0) : 0); });
-  twoStep("btnReset", "Alles löschen? Nochmal tippen", () => W.reset());
+  twoStep("btnEnd", "Really end? Tap again", () => { if (!known) return; const st = status(now()); W.end(st.lap ? st.lap - 1 + (st.returned ? 1 : 0) : 0); });
+  twoStep("btnReset", "Delete everything? Tap again", () => W.reset());
 
   /* ---------- Diagramm ---------- */
   let chartKey = "";
@@ -512,19 +512,19 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
       $("pM").textContent = pad(Math.floor(s%3600/60));
       $("pS").textContent = pad(s%60);
       const ds = new Date(S.start);
-      $("preWhen").textContent = ds.toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"}) + " · " + hhmm(S.start) + " Uhr · Startschuss";      resetAlarms();
+      $("preWhen").textContent = ds.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}) + " · " + hhmm(S.start) + " · Start";      resetAlarms();
       return;
     }
 
     if (!known){
       box.dataset.warn = ""; box.classList.remove("pulse");
       $("lapNo").textContent = "–";
-      $("kmDone").innerHTML = `<strong>${km(0)}</strong> gelaufen`;
+      $("kmDone").innerHTML = `<strong>${km(0)}</strong> run`;
       $("timerLabel").textContent = "Start in";
       $("countdown").textContent = "--:--";
       $("hourBar").style.width = "0%";
-      phase.dataset.p = "pre"; phase.textContent = "Vor dem Start";
-      $("phaseDetail").innerHTML = canWrite() ? "Startzeit in den <strong>Einstellungen</strong> festlegen" : "Die Startzeit wird noch festgelegt";
+      phase.dataset.p = "pre"; phase.textContent = "Before the start";
+      $("phaseDetail").innerHTML = canWrite() ? "Set the start time in <strong>Settings</strong>" : "The start time will be announced soon";
       $("msName").textContent = "–"; $("msDetail").innerHTML = "&nbsp;";
       ["stTotal","stAvg","stBest","stLast"].forEach(id => $(id).textContent = "–");
       drawChart([], 0);
@@ -544,45 +544,45 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
     prevNext = st.nextStart; prevRem = rem;
 
     $("lapNo").textContent = st.lap ? st.lap : "–";
-    $("kmDone").innerHTML = `<strong>${km(st.completed)}</strong> gelaufen`;
+    $("kmDone").innerHTML = `<strong>${km(st.completed)}</strong> run`;
 
     if (S.ended){
       box.dataset.warn = ""; box.classList.remove("pulse");
-      $("timerLabel").textContent = "Rennen beendet";
-      $("countdown").textContent = st.completed + " Rd.";
+      $("timerLabel").textContent = "Race over";
+      $("countdown").textContent = st.completed + " loops";
       $("hourBar").style.width = "100%";
-      phase.dataset.p = "end"; phase.textContent = "Ende";
-      $("phaseDetail").innerHTML = `Werner hat <strong>${km(st.completed)}</strong> geschafft`;
+      phase.dataset.p = "end"; phase.textContent = "Finished";
+      $("phaseDetail").innerHTML = `Werner covered <strong>${km(st.completed)}</strong>`;
     } else {
       const going = t < goUntil;
       const days = Math.floor(Math.max(0,rem)/86400);
       box.dataset.warn = going ? "go" : rem <= 60 ? "1" : rem <= 120 ? "2" : rem <= 180 ? "3" : "";
       box.classList.toggle("pulse", !going && rem <= 60);
-      $("timerLabel").textContent = going ? "Los!" : st.lap ? "Nächster Start in" : days ? `Start in ${days} ${days===1?"Tag":"Tagen"} und` : "Start in";
+      $("timerLabel").textContent = going ? "Go!" : st.lap ? "Next start in" : days ? `Start in ${days} ${days===1?"day":"days"} and` : "Start in";
       $("countdown").textContent = cd(rem - days*86400);
       $("hourBar").style.width = st.lap ? (((t - st.lapStart)/H)*100).toFixed(2)+"%" : "0%";
       if (!st.lap){
-        const ds = new Date(S.start).toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"numeric"});
-        phase.dataset.p = "pre"; phase.textContent = "Vor dem Start";
-        $("phaseDetail").innerHTML = `Erster Start <strong>${ds} um ${hhmm(S.start)} Uhr</strong>`;
+        const ds = new Date(S.start).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+        phase.dataset.p = "pre"; phase.textContent = "Before the start";
+        $("phaseDetail").innerHTML = `First start <strong>${ds} at ${hhmm(S.start)}</strong>`;
       } else if (!st.returned){
-        phase.dataset.p = "run"; phase.textContent = "Unterwegs";
-        $("phaseDetail").innerHTML = `Runde ${st.lap} läuft seit <strong>${mmss(t - st.lapStart)}</strong>`;
+        phase.dataset.p = "run"; phase.textContent = "On the loop";
+        $("phaseDetail").innerHTML = `Loop ${st.lap} running for <strong>${mmss(t - st.lapStart)}</strong>`;
       } else {
-        phase.dataset.p = "camp"; phase.textContent = "Im Camp";
-        $("phaseDetail").innerHTML = `Rundenzeit <strong>${mmss(st.returned - st.lapStart)}</strong> · Pause bis zum Start`;
+        phase.dataset.p = "camp"; phase.textContent = "In camp";
+        $("phaseDetail").innerHTML = `Loop time <strong>${mmss(st.returned - st.lapStart)}</strong> · resting until the start`;
       }
     }
 
-    const list = MILESTONES.filter(m => m[0] !== S.goal).concat([[S.goal, "Werners Ziel"]]).sort((a,b) => a[0]-b[0]);
+    const list = MILESTONES.filter(m => m[0] !== S.goal).concat([[S.goal, "Werner's goal"]]).sort((a,b) => a[0]-b[0]);
     const next = list.find(m => m[0] > st.completed);
     if (next){
       const left = next[0] - st.completed;
       $("msName").textContent = next[1];
-      $("msDetail").innerHTML = `noch <strong>${left} ${left===1?"Runde":"Runden"}</strong> · ${km(next[0])} nach Runde ${next[0]}`;
+      $("msDetail").innerHTML = `<strong>${left} ${left===1?"loop":"loops"}</strong> to go · ${km(next[0])} after loop ${next[0]}`;
     } else {
-      $("msName").textContent = "Alles geknackt";
-      $("msDetail").textContent = "Jede weitere Runde ist Bonus";
+      $("msName").textContent = "All smashed";
+      $("msDetail").textContent = "Every extra loop is a bonus";
     }
 
     const times = lapTimes(st.lap), valid = times.filter(x => x != null);
@@ -593,7 +593,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.
     drawChart(times, st.lap);
 
     $("btnBack").disabled = !!(S.ended || !st.lap || st.returned);
-    $("btnBackText").textContent = st.returned ? `Runde ${st.lap} erfasst` : "Werner ist zurück";
+    $("btnBackText").textContent = st.returned ? `Loop ${st.lap} recorded` : "Werner is back";
   }
 
   applyRole();
