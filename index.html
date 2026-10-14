@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Werners Backyard Ultra</title>
+<script>
+/* ============================================================
+   HIER DEINE FIREBASE-WERTE EINTRAGEN
+   (Firebase-Konsole > Projekteinstellungen > Meine Apps > Web-App)
+   Bleiben die Felder leer, läuft die Tafel nur auf diesem Gerät.
+   ============================================================ */
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCw7KVdGXNdAxxFjWRPEgl01QY2k8r1Sq0",
+  authDomain: "werner-backyard.firebaseapp.com",
+  databaseURL: "https://werner-backyard-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "werner-backyard",
+  appId: "1:1034441414380:web:de307bac1c2f7f438177c9"
+};
+/* Erster Start (deutsche Zeit). Gilt, solange in den Einstellungen nichts anderes gespeichert ist. */
+window.RACE_START = "2026-10-16T18:00:00+02:00";
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Anzeigetafel für die Nacht im Camp – Runde links, riesiger Countdown in der Mitte, Ziel rechts, Verlauf unten. Bewusst nur dunkel. */
+:root{
+  color-scheme: dark;
+  --bg:#0b110f; --panel:#121b17; --line:#22302a; --fg:#e8efe9; --muted:#879a90;
+  --accent:#9ed6c4; --warn3:#e9b44c; --warn1:#ff5f4f; --go:#7fe39a; --on-bright:#0b110f;
+  --display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.app{min-height:100%;display:flex;flex-direction:column;gap:clamp(12px,2.2vh,26px);padding-inline:clamp(16px,3vw,44px);padding-block:clamp(12px,2.2vh,28px)}
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;line-height:1}
+.eyebrow,.label{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-size:clamp(.8rem,1.1vw,1.05rem)}
+h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,3.4vw,3.2rem);letter-spacing:.01em;text-transform:uppercase}
+.rule{font-size:.85rem;color:var(--muted)}
+.spacer{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-size:.85rem;color:var(--go);border:1px solid color-mix(in srgb,var(--go) 40%,var(--line));border-radius:999px;padding:3px 10px}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.chip.off{color:var(--warn3);border-color:color-mix(in srgb,var(--warn3) 40%,var(--line))}
+.chip.local{color:var(--muted);border-color:var(--line)}
+.clock{font-family:var(--display);font-weight:600;font-size:clamp(1.6rem,3vw,2.8rem);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+
+.board{flex:1;display:grid;grid-template-columns:1fr 2.4fr 1fr;gap:clamp(12px,2vw,28px);min-height:0}
+.cell{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0}
+.side{align-items:flex-start}
+.goalcell{align-items:flex-end;text-align:right}
+.big{font-family:var(--display);font-weight:800;font-size:clamp(5rem,min(13vw,26vh),15rem);line-height:.85;font-variant-numeric:tabular-nums}
+.mid{font-family:var(--display);font-weight:700;font-size:clamp(2rem,min(4.6vw,9vh),5.5rem);line-height:.95;text-wrap:balance}
+.sub{color:var(--muted);font-size:clamp(1rem,1.5vw,1.4rem);font-variant-numeric:tabular-nums}
+.sub strong{color:var(--fg);font-weight:600}
+
+.timer{align-items:center;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(16px,3vh,36px) clamp(16px,2vw,32px);transition:background .4s,border-color .4s}
+.huge{font-family:var(--display);font-weight:800;font-size:clamp(6rem,min(21vw,32vh),24rem);line-height:.82;font-variant-numeric:tabular-nums;letter-spacing:-.01em;transition:color .4s}
+.hourbar{width:min(100%,640px);height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.hourbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .9s linear,background .4s}
+.phase{display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:clamp(1rem,1.6vw,1.5rem);padding:4px 14px;border-radius:999px;border:1px solid var(--line)}
+.phase::before{content:"";width:10px;height:10px;border-radius:50%;background:currentColor}
+.phase[data-p="run"]{color:var(--accent)}
+.phase[data-p="camp"]{color:var(--go)}
+.phase[data-p="pre"],.phase[data-p="end"]{color:var(--muted)}
+.timer[data-warn="3"]{border-color:var(--warn3)}
+.timer[data-warn="3"] .huge{color:var(--warn3)}
+.timer[data-warn="3"] .hourbar i{background:var(--warn3)}
+.timer[data-warn="2"]{border-color:var(--warn3);background:color-mix(in srgb,var(--warn3) 12%,var(--panel))}
+.timer[data-warn="2"] .huge{color:var(--warn3)}
+.timer[data-warn="2"] .hourbar i{background:var(--warn3)}
+.timer[data-warn="1"]{border-color:var(--warn1);background:color-mix(in srgb,var(--warn1) 16%,var(--panel))}
+.timer[data-warn="1"] .huge{color:var(--warn1)}
+.timer[data-warn="1"] .hourbar i{background:var(--warn1)}
+.timer[data-warn="go"]{background:var(--go);border-color:var(--go)}
+.timer[data-warn="go"] .huge,.timer[data-warn="go"] .label,.timer[data-warn="go"] .sub,.timer[data-warn="go"] .sub strong,.timer[data-warn="go"] .phase{color:var(--on-bright)}
+.timer[data-warn="go"] .phase{border-color:var(--on-bright)}
+@media (prefers-reduced-motion:no-preference){
+  .timer[data-warn="1"].pulse{animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{50%{background:color-mix(in srgb,var(--warn1) 30%,var(--panel))}}
+}
+
+.lower{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,2fr) minmax(0,1fr);gap:clamp(12px,2vw,28px);align-items:stretch}
+.lower.viewer{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;align-content:center;margin:0}
+.stats div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.stats dd{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(1.4rem,2.2vw,2.2rem);font-variant-numeric:tabular-nums}
+.stats dt{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-size:.85rem}
+.chart{display:flex;flex-direction:column;gap:6px;min-width:0}
+.chart svg{width:100%;height:auto;max-height:22vh;display:block}
+.chart text{fill:var(--muted);font-family:var(--display);font-size:13px}
+.actions{display:flex;flex-direction:column;gap:10px;justify-content:center}
+.primary{background:var(--accent);color:var(--on-bright);border:0;border-radius:12px;padding:18px 16px;font-family:var(--display);font-weight:800;font-size:clamp(1.3rem,2vw,1.9rem);text-transform:uppercase;letter-spacing:.06em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.primary small{font-family:var(--body);font-weight:500;font-size:.8rem;letter-spacing:0;text-transform:none;opacity:.75}
+.primary:disabled{background:var(--line);color:var(--muted);cursor:default}
+
+/* Vorlauf bis zum ersten Start */
+.pre{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:clamp(14px,3.2vh,34px);padding-block:clamp(8px,2vh,24px)}
+.pre-kicker{margin:0;font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-size:clamp(.9rem,1.4vw,1.25rem)}
+.pre-title{margin:0;font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:clamp(2.6rem,min(8vw,12vh),7.5rem);line-height:.9;letter-spacing:.01em;text-wrap:balance}
+.pre-title em{font-style:normal;color:var(--accent)}
+.pre-clock{display:flex;align-items:stretch;justify-content:center;gap:clamp(8px,1.4vw,20px);width:100%}
+.unit{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:clamp(72px,14vw,220px);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:clamp(12px,2.2vh,26px) clamp(8px,1.4vw,20px)}
+.num{font-family:var(--display);font-weight:800;font-size:clamp(3rem,min(11vw,18vh),11rem);line-height:.9;font-variant-numeric:tabular-nums}
+.unit.sec .num{color:var(--accent)}
+.cap{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-size:clamp(.75rem,1.1vw,1rem)}
+.pre-slogan{margin:0;font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:clamp(1.2rem,2.4vw,2.2rem);text-wrap:balance}
+.pre-facts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 28px;color:var(--muted);font-size:clamp(.95rem,1.3vw,1.2rem)}
+.pre-facts strong{color:var(--fg);font-weight:600}
+@media (max-width:600px){ .unit{min-width:0;flex:1;padding-inline:4px} .num{font-size:clamp(2.2rem,13vw,4rem)} }
+
+.overlay{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 70%,transparent);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;width:min(100%,440px);display:flex;flex-direction:column;gap:16px;max-height:100%;overflow:auto}
+.sheet h2{margin:0;font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:1.8rem;letter-spacing:.04em}
+.sheet form{display:flex;flex-direction:column;gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-size:.85rem}
+.field input{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;color:var(--fg);font:inherit;font-size:1.1rem}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row .field{flex:1;min-width:120px}
+.hint{color:var(--muted);font-size:.9rem;margin:0}
+.err{color:var(--warn1);font-size:.95rem;margin:0}
+.danger{border-color:color-mix(in srgb,var(--warn1) 50%,var(--line))}
+.danger.armed{background:var(--warn1);color:var(--on-bright);border-color:var(--warn1)}
+.save{background:var(--accent);color:var(--on-bright);border:0;font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel);border:1px solid var(--warn1);color:var(--fg);padding:10px 16px;border-radius:10px;z-index:20;max-width:calc(100% - 32px)}
+
+@media (max-width:900px){
+  .board{grid-template-columns:1fr 1fr}
+  .timer{grid-column:1 / -1;order:-1}
+  .lower,.lower.viewer{grid-template-columns:1fr}
+  .big{font-size:clamp(4rem,18vw,8rem)}
+  .huge{font-size:clamp(5rem,27vw,14rem)}
+  .clock{font-size:1.6rem}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <span class="eyebrow">Backyard Ultra</span>
+      <h1>Werner</h1>
+    </div>
+    <span class="rule">6,706 km pro Runde · Start zu jeder vollen Stunde</span>
+    <span class="chip" id="modeChip" hidden>Live</span>
+    <span class="spacer"></span>
+    <span class="clock" id="clock">--:--:--</span>
+    <div class="tools">
+      <button class="btn" id="btnSound" aria-pressed="false">Ton aus</button>
+      <button class="btn" id="btnFull">Vollbild</button>
+      <button class="btn" id="btnSettings" hidden>Einstellungen</button>
+    </div>
+  </header>
+
+  <section class="pre" id="pre" hidden>
+    <p class="pre-kicker" id="preWhen">Startschuss</p>
+    <h2 class="pre-title">Time till the epic <em>Werner</em> event</h2>
+    <div class="pre-clock" role="timer" aria-label="Zeit bis zum Start">
+      <div class="unit"><span class="num" id="pD">0</span><span class="cap">Tage</span></div>
+      <div class="unit"><span class="num" id="pH">00</span><span class="cap">Stunden</span></div>
+      <div class="unit"><span class="num" id="pM">00</span><span class="cap">Minuten</span></div>
+      <div class="unit sec"><span class="num" id="pS">00</span><span class="cap">Sekunden</span></div>
+    </div>
+    <p class="pre-slogan">One loop every hour. No finish line. Werner decides.</p>
+    <ul class="pre-facts">
+      <li><strong>6,706 km</strong> pro Runde</li>
+      <li><strong>Jede volle Stunde</strong> ein neuer Start</li>    </ul>
+  </section>
+
+  <main class="board" id="board">
+    <section class="cell side">
+      <span class="label">Runde</span>
+      <span class="big" id="lapNo">–</span>
+      <span class="sub" id="kmDone"><strong>0,0 km</strong> gelaufen</span>
+    </section>
+    <section class="cell timer" id="timerBox">
+      <span class="label" id="timerLabel">Start in</span>
+      <span class="huge" id="countdown">--:--</span>
+      <div class="hourbar"><i id="hourBar"></i></div>
+      <span class="phase" id="phase" data-p="pre">Vor dem Start</span>
+      <span class="sub" id="phaseDetail">&nbsp;</span>
+    </section>
+    <section class="cell goalcell">
+      <span class="label">Nächstes Ziel</span>
+      <span class="mid" id="msName">–</span>
+      <span class="sub" id="msDetail">&nbsp;</span>
+    </section>
+  </main>
+
+  <section class="lower" id="lower">
+    <dl class="stats">
+      <div><dt>Gesamtzeit</dt><dd id="stTotal">–</dd></div>
+      <div><dt>Ø Runde</dt><dd id="stAvg">–</dd></div>
+      <div><dt>Schnellste</dt><dd id="stBest">–</dd></div>
+      <div><dt>Letzte</dt><dd id="stLast">–</dd></div>
+    </dl>
+    <div class="chart">
+      <span class="label">Rundenzeiten in Minuten</span>
+      <svg id="chart" viewBox="0 0 600 150" role="img" aria-label="Rundenzeiten"></svg>
+    </div>
+    <div class="actions" id="actions">
+      <button class="primary" id="btnBack"><span id="btnBackText">Werner ist zurück</span><small>oder Leertaste drücken</small></button>
+      <button class="btn" id="btnUndo">Letzte Eingabe rückgängig</button>
+    </div>
+  </section>
+</div>
+
+<div class="overlay" id="settings" hidden>
+  <div class="sheet">
+    <form id="loginForm" hidden>
+      <h2>Anmelden</h2>
+      <p class="hint">Nur wer angemeldet ist, kann Runden eintragen. Zuschauer brauchen das nicht.</p>
+      <div class="field"><label for="loginEmail">E-Mail</label><input type="email" id="loginEmail" autocomplete="username" required></div>
+      <div class="field"><label for="loginPass">Passwort</label><input type="password" id="loginPass" autocomplete="current-password" required></div>
+      <p class="err" id="loginErr" hidden></p>
+      <div class="row">
+        <button type="submit" class="btn save">Anmelden</button>
+        <button type="button" class="btn" data-close>Schließen</button>
+      </div>
+    </form>
+
+    <form id="raceForm" hidden>
+      <h2>Einstellungen</h2>
+      <div class="row">
+        <div class="field"><label for="setDate">Renntag</label><input type="date" id="setDate" required></div>
+        <div class="field"><label for="setTime">Erster Start</label><input type="time" id="setTime" step="60" required></div>
+      </div>
+      <div class="field"><label for="setGoal">Werners Ziel (Runden)</label><input type="number" id="setGoal" min="1" max="200" required></div>
+      <p class="hint" id="raceHint"></p>
+      <div class="row">
+        <button type="submit" class="btn save">Speichern</button>
+        <button type="button" class="btn" data-close>Schließen</button>
+      </div>
+      <div class="row">
+        <button type="button" class="btn danger" id="btnEnd">Rennen beenden</button>
+        <button type="button" class="btn danger" id="btnReset">Alles zurücksetzen</button>
+        <button type="button" class="btn" id="btnLogout" hidden>Abmelden</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  const H = 3600000, LAP_KM = 6.706, KEY = "werner-backyard-v3";
+  const $ = id => document.getElementById(id);
+  const MILESTONES = [[7,"Marathon"],[8,"50 km"],[15,"100 km"],[24,"100 Meilen"],[30,"200 km"],[36,"150 Meilen"],[45,"300 km"]];
+  const cfg = window.FIREBASE_CONFIG || {};
+  const LIVE = !!(cfg.apiKey && cfg.databaseURL && window.firebase);
+  const WANTS_ADMIN = /admin/i.test(location.hash);
+
+  let offset = 0;                       // Abweichung der eigenen Uhr zur Server-Uhr
+  const now = () => Date.now() + offset;
+  const DEFAULT_START = new Date(window.RACE_START || "").getTime() || null;
+  let S = {start: DEFAULT_START, goal: 24, returns: {}, ended: null};
+  let known = !!DEFAULT_START, stored = false, admin = false, connected = true;
+  let ref = null, auth = null, TS = null;
+
+  const pad = n => String(n).padStart(2,"0");
+  const mmss = ms => { const s = Math.max(0, Math.round(ms/1000)); return pad(Math.floor(s/60)) + ":" + pad(s%60); };
+  const cd = sec => { sec = Math.max(0,sec); const h = Math.floor(sec/3600), m = Math.floor(sec%3600/60), s = sec%60; return h ? h+":"+pad(m)+":"+pad(s) : pad(m)+":"+pad(s); };
+  const hms = ms => { const s = Math.max(0,Math.floor(ms/1000)); return Math.floor(s/3600)+":"+pad(Math.floor(s%3600/60))+":"+pad(s%60); };
+  const km = laps => (laps*LAP_KM).toLocaleString("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1}) + " km";
+  const hhmm = t => { const d = new Date(t); return pad(d.getHours())+":"+pad(d.getMinutes()); };
+  function nextFullHour(){ const d = new Date(now()); d.setMinutes(0,0,0); d.setHours(d.getHours()+1); return d.getTime(); }
+  const canWrite = () => LIVE ? admin : true;
+
+  let toastTimer = null;
+  function toast(msg){ $("toast").textContent = msg; $("toast").hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(()=>{ $("toast").hidden = true; }, 6000); }
+  const failed = e => toast("Speichern hat nicht geklappt: " + ((e && e.code === "PERMISSION_DENIED") ? "keine Berechtigung, bitte neu anmelden." : (e && e.message) || "unbekannter Fehler"));
+
+  /* ---------- Speicher: Firebase oder nur dieses Gerät ---------- */
+  function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+  if (LIVE){
+    firebase.initializeApp(cfg);
+    const db = firebase.database();
+    auth = firebase.auth();
+    TS = firebase.database.ServerValue.TIMESTAMP;
+    ref = db.ref("race");
+    db.ref(".info/serverTimeOffset").on("value", s => { offset = s.val() || 0; });
+    db.ref(".info/connected").on("value", s => { connected = !!s.val(); applyRole(); });
+    ref.on("value", snap => {
+      const d = snap.val() || {}, before = S.start;
+      stored = !!d.start;
+      S = {start: d.start || DEFAULT_START, goal: d.goal || 24, returns: d.returns || {}, ended: d.ended || null};
+      known = !!S.start;
+      if (S.start !== before) resetAlarms();
+      chartKey = ""; render();
+    }, () => toast("Die Live-Daten lassen sich nicht laden. Stimmen die Regeln der Datenbank?"));
+    auth.onAuthStateChanged(u => { admin = !!u; applyRole(); render(); });
+  } else {
+    try{ const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.start) S = s; }catch(e){}
+    if (!S.start) S.start = DEFAULT_START || nextFullHour();
+    known = true; saveLocal();
+  }
+
+  const W = {
+    back(lap){ if (LIVE) ref.child("returns/r"+lap).set(TS).catch(failed); else { S.returns["r"+lap] = now(); saveLocal(); render(); } },
+    unback(lap){ if (LIVE) ref.child("returns/r"+lap).remove().catch(failed); else { delete S.returns["r"+lap]; saveLocal(); render(); } },
+    unend(){ if (LIVE) ref.child("ended").remove().catch(failed); else { S.ended = null; saveLocal(); render(); } },
+    end(laps){ if (LIVE) ref.child("ended").set({at: TS, laps}).catch(failed); else { S.ended = {at: now(), laps}; saveLocal(); render(); } },
+    settings(start, goal){
+      const fresh = (LIVE ? !stored : !known) || start !== S.start;
+      if (LIVE){ (fresh ? ref.set({start, goal}) : ref.update({goal})).catch(failed); }
+      else { if (fresh){ S.returns = {}; S.ended = null; } S.start = start; S.goal = goal; saveLocal(); resetAlarms(); render(); }
+    },
+    reset(){ if (LIVE) ref.remove().catch(failed); else { S = {start: DEFAULT_START || nextFullHour(), goal: S.goal, returns: {}, ended: null}; saveLocal(); resetAlarms(); render(); } }
+  };
+
+  function applyRole(){
+    const w = canWrite();
+    $("actions").hidden = !w;
+    $("lower").classList.toggle("viewer", !w);
+    $("btnSettings").hidden = !(w || (LIVE && WANTS_ADMIN));
+    $("btnSettings").textContent = (LIVE && !admin) ? "Anmelden" : "Einstellungen";
+    const chip = $("modeChip");
+    chip.hidden = false;
+    chip.className = "chip";
+    if (!LIVE){ chip.classList.add("local"); chip.textContent = "Nur dieses Gerät"; }
+    else if (!connected){ chip.classList.add("off"); chip.textContent = admin ? "Offline · wird nachgeholt" : "Verbindung weg"; }
+    else chip.textContent = admin ? "Live · du trägst ein" : "Live";
+  }
+
+  /* ---------- Rennstand ---------- */
+  function status(t0){
+    const t = S.ended ? S.ended.at : t0;
+    let lap = 0, nextStart = S.start;
+    if (t >= S.start){ lap = Math.floor((t - S.start)/H) + 1; nextStart = S.start + lap*H; }
+    const returned = lap ? S.returns["r"+lap] : null;
+    const completed = S.ended ? S.ended.laps : (lap ? lap - 1 + (returned ? 1 : 0) : 0);
+    return {t, lap, nextStart, returned, completed, lapStart: S.start + (lap-1)*H};
+  }
+  function lapTimes(lap){
+    const out = [];
+    for (let l = 1; l <= lap; l++){ const r = S.returns["r"+l]; out.push(r ? r - (S.start + (l-1)*H) : null); }
+    return out;
+  }
+
+  /* ---------- Ton ---------- */
+  let ctx = null, soundOn = false;
+  function tone(freq, dur, when, vol, type){
+    if (!ctx || !soundOn) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type || "sine"; o.frequency.value = freq;
+    const t0 = ctx.currentTime + (when||0);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol||0.4, t0+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g).connect(ctx.destination); o.start(t0); o.stop(t0+dur+0.05);
+  }
+  const whistles = n => { for (let i=0;i<n;i++) tone(1900, 0.35, i*0.55, 0.35, "triangle"); };
+  const bell = () => [0,0.9,1.8].forEach(w => { tone(660,2.4,w,0.45); tone(1320,1.6,w,0.2); tone(1985,1.0,w,0.1); });
+  const tick = () => tone(1200, 0.06, 0, 0.15, "square");
+
+  let wake = null;
+  async function keepAwake(){ try{ if ("wakeLock" in navigator && !wake){ wake = await navigator.wakeLock.request("screen"); wake.addEventListener("release", () => { wake = null; }); } }catch(e){} }
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") keepAwake(); });
+  document.addEventListener("pointerdown", keepAwake, {once:true});
+
+  $("btnSound").addEventListener("click", () => {
+    try{ if (!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); ctx.resume(); }catch(e){}
+    soundOn = !soundOn;
+    $("btnSound").textContent = soundOn ? "Ton an" : "Ton aus";
+    $("btnSound").setAttribute("aria-pressed", soundOn);
+    if (soundOn) tone(1900,0.2,0,0.3,"triangle");
+    keepAwake();
+  });
+  $("btnFull").addEventListener("click", async () => {
+    try{ if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); }catch(e){}
+    keepAwake();
+  });
+
+  /* ---------- Eingaben ---------- */
+  function markBack(){
+    if (!canWrite() || !known) return;
+    const st = status(now());
+    if (S.ended || st.lap < 1 || st.returned) return;
+    W.back(st.lap);
+  }
+  $("btnBack").addEventListener("click", markBack);
+  $("btnUndo").addEventListener("click", () => {
+    if (!canWrite() || !known) return;
+    if (S.ended) return W.unend();
+    const st = status(now());
+    if (st.returned) W.unback(st.lap);
+  });
+  document.addEventListener("keydown", e => {
+    if (!$("settings").hidden){ if (e.key === "Escape") closeSettings(); return; }
+    if (e.code === "Space" && canWrite()){ e.preventDefault(); markBack(); }
+    if (e.key === "f" || e.key === "F") $("btnFull").click();
+  });
+
+  /* ---------- Einstellungen & Anmeldung ---------- */
+  function openSettings(){
+    disarm();
+    const needLogin = LIVE && !admin;
+    $("loginForm").hidden = !needLogin;
+    $("raceForm").hidden = needLogin;
+    $("loginErr").hidden = true;
+    if (!needLogin){
+      const d = new Date(S.start || nextFullHour());
+      $("setDate").value = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+      $("setTime").value = pad(d.getHours())+":"+pad(d.getMinutes());
+      $("setGoal").value = S.goal;
+      $("btnLogout").hidden = !LIVE;
+      $("raceHint").textContent = LIVE ? "Änderungen sehen alle Zuschauer sofort. Eine neue Startzeit löscht die bisherigen Rundenzeiten." : "Ohne Firebase-Werte wird nur in diesem Browser gespeichert.";
+    }
+    $("settings").hidden = false;
+    (needLogin ? $("loginEmail") : $("setTime")).focus();
+  }
+  function closeSettings(){ $("settings").hidden = true; }
+  $("btnSettings").addEventListener("click", openSettings);
+  document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", closeSettings));
+  $("settings").addEventListener("click", e => { if (e.target.id === "settings") closeSettings(); });
+
+  $("loginForm").addEventListener("submit", e => {
+    e.preventDefault();
+    $("loginErr").hidden = true;
+    auth.signInWithEmailAndPassword($("loginEmail").value.trim(), $("loginPass").value)
+      .then(() => { $("loginPass").value = ""; openSettings(); })
+      .catch(err => {
+        const c = (err && err.code) || "";
+        $("loginErr").textContent = /invalid|wrong-password|user-not-found/.test(c) ? "E-Mail oder Passwort stimmt nicht." :
+          /too-many/.test(c) ? "Zu viele Versuche. Bitte kurz warten." :
+          /network/.test(c) ? "Keine Internetverbindung." : "Anmelden hat nicht geklappt (" + c + ").";
+        $("loginErr").hidden = false;
+      });
+  });
+  $("btnLogout").addEventListener("click", () => { auth.signOut(); closeSettings(); });
+
+  $("raceForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const t = new Date($("setDate").value + "T" + $("setTime").value).getTime();
+    if (isNaN(t)) return;
+    W.settings(t, Math.max(1, parseInt($("setGoal").value,10) || 24));
+    closeSettings();
+  });
+
+  const armed = {};
+  function disarm(){ ["btnEnd","btnReset"].forEach(id => { armed[id] = false; $(id).classList.remove("armed"); }); $("btnEnd").textContent = "Rennen beenden"; $("btnReset").textContent = "Alles zurücksetzen"; }
+  function twoStep(id, label, action){
+    $(id).addEventListener("click", () => {
+      if (!armed[id]){ disarm(); armed[id] = true; $(id).classList.add("armed"); $(id).textContent = label; setTimeout(() => { if (armed[id]) disarm(); }, 4000); return; }
+      disarm(); action(); closeSettings();
+    });
+  }
+  twoStep("btnEnd", "Wirklich beenden? Nochmal tippen", () => { if (!known) return; const st = status(now()); W.end(st.lap ? st.lap - 1 + (st.returned ? 1 : 0) : 0); });
+  twoStep("btnReset", "Alles löschen? Nochmal tippen", () => W.reset());
+
+  /* ---------- Diagramm ---------- */
+  let chartKey = "";
+  function drawChart(times, lap){
+    const key = times.join(",") + "|" + lap;
+    if (key === chartKey) return; chartKey = key;
+    const Wd = 600, Hh = 150, L = 30, R = 6, T = 8, B = 22, ih = Hh-T-B, iw = Wd-L-R;
+    const slots = Math.max(12, lap), bw = iw/slots;
+    const y = m => T + ih - (Math.min(m,60)/60)*ih;
+    let svg = "";
+    [0,15,30,45,60].forEach(m => {
+      svg += `<line x1="${L}" x2="${Wd-R}" y1="${y(m)}" y2="${y(m)}" stroke="var(--line)" stroke-width="1"/>`;
+      svg += `<text x="${L-6}" y="${y(m)+4}" text-anchor="end">${m}</text>`;
+    });
+    let lastIdx = -1; times.forEach((t,i) => { if (t != null) lastIdx = i; });
+    const step = slots > 30 ? 5 : slots > 16 ? 2 : 1;
+    times.forEach((t,i) => {
+      if (t == null) return;
+      const m = t/60000, x = L + i*bw + bw*0.15, w = Math.max(2, bw*0.7);
+      svg += `<rect x="${x}" y="${y(m)}" width="${w}" height="${T+ih-y(m)}" rx="2" fill="var(--accent)" opacity="${i===lastIdx?1:0.55}"/>`;
+    });
+    for (let i = 0; i < slots; i++){
+      if ((i+1)%step === 0 || i === 0) svg += `<text x="${L+i*bw+bw/2}" y="${Hh-6}" text-anchor="middle">${i+1}</text>`;
+    }
+    $("chart").innerHTML = svg;
+  }
+
+  /* ---------- Anzeige ---------- */
+  let prevNext = null, prevRem = null, goUntil = 0;
+  function resetAlarms(){ prevNext = null; prevRem = null; goUntil = 0; }
+
+  function render(){
+    const t = now(), d = new Date(t);
+    $("clock").textContent = pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+    const box = $("timerBox"), phase = $("phase");
+
+    /* Vorlauf-Bildschirm bis 10 Minuten vor dem ersten Start */
+    const pre = known && !S.ended && t < S.start - 10*60000;
+    $("pre").hidden = !pre;
+    $("board").hidden = pre;
+    $("lower").hidden = pre;
+    if (pre){
+      const s = Math.max(0, Math.ceil((S.start - t)/1000));
+      $("pD").textContent = Math.floor(s/86400);
+      $("pH").textContent = pad(Math.floor(s%86400/3600));
+      $("pM").textContent = pad(Math.floor(s%3600/60));
+      $("pS").textContent = pad(s%60);
+      const ds = new Date(S.start);
+      $("preWhen").textContent = ds.toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"}) + " · " + hhmm(S.start) + " Uhr · Startschuss";      resetAlarms();
+      return;
+    }
+
+    if (!known){
+      box.dataset.warn = ""; box.classList.remove("pulse");
+      $("lapNo").textContent = "–";
+      $("kmDone").innerHTML = `<strong>${km(0)}</strong> gelaufen`;
+      $("timerLabel").textContent = "Start in";
+      $("countdown").textContent = "--:--";
+      $("hourBar").style.width = "0%";
+      phase.dataset.p = "pre"; phase.textContent = "Vor dem Start";
+      $("phaseDetail").innerHTML = canWrite() ? "Startzeit in den <strong>Einstellungen</strong> festlegen" : "Die Startzeit wird noch festgelegt";
+      $("msName").textContent = "–"; $("msDetail").innerHTML = "&nbsp;";
+      ["stTotal","stAvg","stBest","stLast"].forEach(id => $(id).textContent = "–");
+      drawChart([], 0);
+      $("btnBack").disabled = true;
+      return;
+    }
+
+    const st = status(t);
+    const rem = Math.ceil((st.nextStart - t)/1000);
+    if (!S.ended){
+      if (prevNext !== null && st.nextStart !== prevNext && st.lap >= 1){ bell(); goUntil = t + 6000; }
+      else if (prevRem !== null){
+        [[180,3],[120,2],[60,1]].forEach(([th,n]) => { if (prevRem > th && rem <= th) whistles(n); });
+        if (rem <= 10 && rem > 0 && rem < prevRem) tick();
+      }
+    }
+    prevNext = st.nextStart; prevRem = rem;
+
+    $("lapNo").textContent = st.lap ? st.lap : "–";
+    $("kmDone").innerHTML = `<strong>${km(st.completed)}</strong> gelaufen`;
+
+    if (S.ended){
+      box.dataset.warn = ""; box.classList.remove("pulse");
+      $("timerLabel").textContent = "Rennen beendet";
+      $("countdown").textContent = st.completed + " Rd.";
+      $("hourBar").style.width = "100%";
+      phase.dataset.p = "end"; phase.textContent = "Ende";
+      $("phaseDetail").innerHTML = `Werner hat <strong>${km(st.completed)}</strong> geschafft`;
+    } else {
+      const going = t < goUntil;
+      const days = Math.floor(Math.max(0,rem)/86400);
+      box.dataset.warn = going ? "go" : rem <= 60 ? "1" : rem <= 120 ? "2" : rem <= 180 ? "3" : "";
+      box.classList.toggle("pulse", !going && rem <= 60);
+      $("timerLabel").textContent = going ? "Los!" : st.lap ? "Nächster Start in" : days ? `Start in ${days} ${days===1?"Tag":"Tagen"} und` : "Start in";
+      $("countdown").textContent = cd(rem - days*86400);
+      $("hourBar").style.width = st.lap ? (((t - st.lapStart)/H)*100).toFixed(2)+"%" : "0%";
+      if (!st.lap){
+        const ds = new Date(S.start).toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"numeric"});
+        phase.dataset.p = "pre"; phase.textContent = "Vor dem Start";
+        $("phaseDetail").innerHTML = `Erster Start <strong>${ds} um ${hhmm(S.start)} Uhr</strong>`;
+      } else if (!st.returned){
+        phase.dataset.p = "run"; phase.textContent = "Unterwegs";
+        $("phaseDetail").innerHTML = `Runde ${st.lap} läuft seit <strong>${mmss(t - st.lapStart)}</strong>`;
+      } else {
+        phase.dataset.p = "camp"; phase.textContent = "Im Camp";
+        $("phaseDetail").innerHTML = `Rundenzeit <strong>${mmss(st.returned - st.lapStart)}</strong> · Pause bis zum Start`;
+      }
+    }
+
+    const list = MILESTONES.filter(m => m[0] !== S.goal).concat([[S.goal, "Werners Ziel"]]).sort((a,b) => a[0]-b[0]);
+    const next = list.find(m => m[0] > st.completed);
+    if (next){
+      const left = next[0] - st.completed;
+      $("msName").textContent = next[1];
+      $("msDetail").innerHTML = `noch <strong>${left} ${left===1?"Runde":"Runden"}</strong> · ${km(next[0])} nach Runde ${next[0]}`;
+    } else {
+      $("msName").textContent = "Alles geknackt";
+      $("msDetail").textContent = "Jede weitere Runde ist Bonus";
+    }
+
+    const times = lapTimes(st.lap), valid = times.filter(x => x != null);
+    $("stTotal").textContent = st.t > S.start ? hms(st.t - S.start) : "–";
+    $("stAvg").textContent = valid.length ? mmss(valid.reduce((a,b) => a+b, 0)/valid.length) : "–";
+    $("stBest").textContent = valid.length ? mmss(Math.min(...valid)) : "–";
+    $("stLast").textContent = valid.length ? mmss(valid[valid.length-1]) : "–";
+    drawChart(times, st.lap);
+
+    $("btnBack").disabled = !!(S.ended || !st.lap || st.returned);
+    $("btnBackText").textContent = st.returned ? `Runde ${st.lap} erfasst` : "Werner ist zurück";
+  }
+
+  applyRole();
+  render();
+  setInterval(render, 250);
+})();
+</script>
+</body>
+</html>
